@@ -126,3 +126,5 @@ p_number_density <- ggplot(binned_numbers2) +
 p_number_density
 ## end exercise #2
 
+
+### Fitting a power law
