@@ -4,9 +4,10 @@
 
 ### Part 1: Understand
 ### Observed size spectrum
+## https://mizer.course.sizespectrum.org/understand/observed-size-spectra.html
 
 
-### Introduction
+## Introduction
 
 # install.packages(c("mizer", "tidyverse", "plotly", "remotes", "usethis",
 #                    "rmarkdown", "rstudioapi"))
