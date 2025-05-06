@@ -1,4 +1,9 @@
-### Part 1
+### MIZER online course
+### https://mizer.course.sizespectrum.org/
+### May 2025
+
+### Part 1: Understand
+### Observed size spectrum
 
 install.packages(c("mizer", "tidyverse", "plotly", "remotes", "usethis",
                    "rmarkdown", "rstudioapi"))
