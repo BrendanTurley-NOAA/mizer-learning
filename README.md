@@ -6,3 +6,4 @@ https://mizer.course.sizespectrum.org/
 
 The course relies upon the R package MIZER:
 https://sizespectrum.org/mizer/
+
