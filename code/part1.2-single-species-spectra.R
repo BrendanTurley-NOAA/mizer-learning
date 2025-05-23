@@ -226,3 +226,110 @@ g0 <- 4.2
 
 
 ### Shape of the adult spectrum
+
+plotSpectra(params, wlim = c(10, NA))
+
+# The increase of abundance that we see at around the maturity size of our species
+# is due to a drop in growth rate at that size. This in turn is due to the fact that
+# the mature fish invests some of its energy into reproduction instead of growth. 
+# So the details of the shape of the adult spectrum will be influenced both by food 
+# intake, maintenance and mortality (like in juveniles), but also by how adults split 
+# their energy income between growth and reproduction.
+
+
+### Investment into reproduction
+
+# Let us look at a plot of the proportion of the available energy that is invested
+# into reproduction as a function of the size. This is the product of the proportion
+# of individuals that are mature (obtained with the function maturity() and the 
+# proportion of their energy income that a mature fish invests into reproduction 
+# (obtained with the function repro_prop().
+
+reprod_proportion <- maturity(params) * repro_prop(params)
+# Convert the array to a data frame for ggplot
+psi <- melt(reprod_proportion)
+
+p <- ggplot(psi) +
+  geom_line(aes(x = w, y = value)) +
+  labs(x = "Weight [g]",
+       y = "Proportion invested into reproduction")
+p
+
+species_params(params)
+select(species_params(params), w_mat, w_mat25, w_max, m)
+
+p + geom_vline(xintercept = species_params(params)$w_mat, lty = 2) +
+  geom_vline(xintercept = species_params(params)$w_mat25, lty = 2, col = "grey")
+
+
+### Change in maturity curve
+
+# Let us investigate what happens when we change the maturity curve. Let’s assume 
+# the maturity size is actually 40 grams and the size at which 25% of individuals 
+# is mature is 30 grams.
+
+params_changed_maturity <- params
+
+given_species_params(params_changed_maturity)$w_mat <- 40
+given_species_params(params_changed_maturity)$w_mat25 <- 30
+select(species_params(params_changed_maturity), w_mat, w_mat25, w_max, m)
+
+psi_changed_maturity <- melt(maturity(params_changed_maturity) * 
+                               repro_prop(params_changed_maturity))
+
+ggplot(psi_changed_maturity) +
+  geom_line(aes(x = w, y = value)) +
+  geom_vline(xintercept = species_params(params_changed_maturity)$w_mat, 
+             lty = 2) +
+  geom_vline(xintercept = species_params(params_changed_maturity)$w_mat25, 
+             lty = 2, col = "grey") + 
+  labs(x = "Weight [g]",
+       y = "Proportion invested into reproduction")
+
+
+### Two curves in one plot
+
+psi$type <- "original"
+psi_changed_maturity$type <- "changed"
+psi_combined <- rbind(psi, psi_changed_maturity)
+
+p <- ggplot(psi_combined) +
+  geom_line(aes(x = w, y = value, colour = type)) +
+  labs(x = "Weight [g]",
+       y = "Proportion invested into reproduction")
+plotly::ggplotly(p)
+
+
+### exercise #4
+# Make a plot showing the growth rates of the original model and of the model with the changed maturity curve.
+growth_rate_op <- getEGrowth(params) |> melt() 
+growth_rate_op$type <- "original"
+growth_rate_changed <- getEGrowth(params_changed_maturity) |> melt()
+growth_rate_changed$type <- "changed"
+growth_combined <- rbind(growth_rate_op, growth_rate_changed)
+
+p <- ggplot(growth_combined) +
+  geom_line(aes(x = w, y = value, colour = type)) +
+  labs(x = "Weight [g]",
+       y = "Growth rate [g/year]")
+plotly::ggplotly(p)
+### end exercise #4
+
+
+### Effect of changed maturity
+
+# Next let us look at how the change in the maturity parameters and the resulting 
+# change in the growth rate affects the steady state spectrum. First we need to 
+# calculate the new steady state
+
+params_changed_maturity <- steadySingleSpecies(params_changed_maturity)
+
+plotSpectra2(params, name1 = "Early maturity",
+             params_changed_maturity, name2 = "Late maturity",
+             power = 2, resource = FALSE, wlim = c(10, NA))
+
+# As expected, the bump happens later due to the larger maturity size and it is less
+# steep, because the maturity curve is less steep. This means that fish do not suddenly
+# start investing most of their energy into reproduction, but still keep growing while
+# they are maturity. Since they are still growing they will be moving from one size 
+# class to another and fewer individuals will accumulate in one size class.
